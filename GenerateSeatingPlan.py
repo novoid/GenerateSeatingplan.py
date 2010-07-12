@@ -495,7 +495,8 @@ openright%
 \\pagestyle{scrheadings}
 \\clearscrheadings
 \\clearscrplain
-\\cfoot{page~\\pagemark}
+\\ifoot{\\scriptsize{}page~\\pagemark}
+\\ofoot{\\tiny{}Generated using GenerateSeatingPlan.py by Karl Voit}
 
 \\begin{document}
 
