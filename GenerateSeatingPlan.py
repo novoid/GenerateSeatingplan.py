@@ -17,7 +17,6 @@ See USAGE below for details!
 FIXXME:
     * look for the string FIXXME to improve this script
     * Sanity checks all over (cmd line parameters, CSV file, ...)
-    * implement GenerateTextfileSortedBySeat() and probably add a command line switch
     * probably: if -p is given, ask for proceeding after displaying ASCII seating plan
 
 """
@@ -192,6 +191,9 @@ parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
 
 parser.add_option("-q", "--quiet", dest="quiet", action="store_true",
                   help="do not output anything but just errors on console")
+             
+parser.add_option("--ls", "--list-by-seat", dest="list_seats", action="store_true",
+                  help="create a list of students orderd by seat. Usefull to create a checklist")
 
 
 (options, args) = parser.parse_args()
@@ -291,6 +293,27 @@ def PrintOutSeatsWithStudents(lecture_room, list_of_students):
         linestring = ''
     print ## one final line to seperate
 
+
+
+def compare_students_by_row_and_set(a, b):
+       
+        return cmp(a['seat'][0], b['seat'][0]) or cmp(a['seat'][1], b['seat'][1])
+
+
+def GenerateCheckList(list_of_students):
+    """ Generate a checklist"""
+
+    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '.checklist.txt', 'w')
+
+    file.write( "               Seating plan   by seat \n\n")
+    
+    for student in sorted(list_of_students, compare_students_by_row_and_set):
+       print student
+       file.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
+            student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
+            student['REGISTRATION_NUMBER'] + \
+            "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
+            "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
 
 
 def FillRowWithStudentsOrLeaveEmpty(lecture_room, currentrow, list_of_occupied_seats):
@@ -425,7 +448,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     for student in list_of_students_with_seats:
         file.write( student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
-            student['REGISTRATION_NUMBER'].ljust(10, '.') + \
+            ' ' + \
             "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
             "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
             
@@ -437,7 +460,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     for student in list_of_students_with_seats:
         file.write( "\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
             student['FIRST_NAME_OF_STUDENT'] + '}{' + \
-            student['REGISTRATION_NUMBER'] + '}{' + \
+            ' ' + '}{' + \
             str(student['seat'][0]) + '}{' + \
             str(chr(64 + student['seat'][0] )) + '}{' + \
             str(student['seat'][1] ) + '}' + "\n" )
@@ -652,6 +675,8 @@ def main():
     PrintOutSeatsWithStudents(LECTURE_ROOM, list_of_students_with_seats)
 
     GenerateTextfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
+    
+    GenerateCheckList(list_of_students_with_seats)
 
     ## not implemented yet:
     #GenerateTextfileSortedBySeat(LECTURE_ROOM, list_of_students_with_seats)
