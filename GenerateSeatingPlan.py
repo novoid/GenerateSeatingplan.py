@@ -69,7 +69,9 @@ import csv
 HS_i7 = { 'rows': 15, 
         'columns': 16, 
         'name': "Hoersaal i7", 
-        'seatstoomit': [ [1, 1], [1, 2], [2, 1] , [2, 2], [3, 1] , [3, 2], 
+        'seatstoomit': [ [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], 
+            [1, 9], [1, 10], [1, 11], [1, 12], [1, 13], [1, 14], [1, 15], [1, 16], 
+            [2, 1] , [2, 2], [3, 1] , [3, 2], 
             [4, 1] , [4, 2], [5, 1] , [5, 2], [6, 1] , [6, 2], [7, 1] , [7, 2],
             [15, 11], [15,12], [15,13], [15,14]
             ] }
@@ -308,7 +310,7 @@ def GenerateCheckList(list_of_students):
     file.write( "               Seating plan   by seat \n\n")
     
     for student in sorted(list_of_students, compare_students_by_row_and_set):
-       print student
+       # print student
        file.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
             student['REGISTRATION_NUMBER'] + \
@@ -415,7 +417,8 @@ def GenerateListOfAllSeats(lecture_room):
 
     return list_of_occupied_seats
 
-def SelectRandomListElementAndRemoveItFromList(list):
+def SelectRandomListElementAndRemoveItFromList(list,seedvalue):
+    seed(seedvalue)
     if list != []:
         list_element_index = randrange( len(list) )
         list_element = list[list_element_index]
@@ -426,11 +429,11 @@ def SelectRandomListElementAndRemoveItFromList(list):
         return None
 
 
-def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats):
+def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, seedvalue):
 
     ## randomize students over all seats:
     for student in list_of_students:
-        student['seat'] = SelectRandomListElementAndRemoveItFromList(list_of_available_seats)
+        student['seat'] = SelectRandomListElementAndRemoveItFromList(list_of_available_seats,seedvalue)
 
     ## randomize over all students, beginning to fill seats from first row upward:
     ## FIXXME: to be done
@@ -448,7 +451,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     for student in list_of_students_with_seats:
         file.write( student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
-            ' ' + \
+            '[...]' + student['REGISTRATION_NUMBER'][-4:].ljust(10, '.') + \
             "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
             "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
             
@@ -460,7 +463,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     for student in list_of_students_with_seats:
         file.write( "\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
             student['FIRST_NAME_OF_STUDENT'] + '}{' + \
-            ' ' + '}{' + \
+            '\ldots{} ' + student['REGISTRATION_NUMBER'][-4:] + '}{' + \
             str(student['seat'][0]) + '}{' + \
             str(chr(64 + student['seat'][0] )) + '}{' + \
             str(student['seat'][1] ) + '}' + "\n" )
@@ -650,12 +653,19 @@ def main():
 
     list_of_students = ReadInStudentsFromCsv( options.students_csv_file )
 
-    logging.info("Number of students:  %s" % str(len(list_of_students)) ) 
+    ## use the file size of the CSV file to initialize random generator
+    ## this results in exact results with the very same input file
+    ## FIXXME: overwrite this value with an optional command line argument?
+    seedvalue = size = os.path.getsize( options.students_csv_file )
+
+    #logging.info("Number of students:  %s" % str(len(list_of_students)) ) 
+    print "Number of students:  %s" % str(len(list_of_students)) 
 
     ## generate list of all seats and remove seats to omit from lecture room:
     list_of_available_seats = [ x for x in GenerateListOfAllSeats(LECTURE_ROOM) if x not in LECTURE_ROOM['seatstoomit'] ]
 
-    logging.info("Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats)) ) 
+    # logging.info("Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats)) ) 
+    print "Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats))
 
     ## just the potential seating plan (without students)
     PrintOutSeats(LECTURE_ROOM, list_of_available_seats)
@@ -667,12 +677,14 @@ def main():
         logging.critical("     or lower values for \"--free_seats_to_seperate\", \"--free_rows_to_seperate\".")
         os.sys.exit(3)
 
-    logging.info("(Unused seats: %s)" % str(len(list_of_available_seats) - len(list_of_students)) )
+    unused_seats_info = "(Unused seats: %s)" % str(len(list_of_available_seats) - len(list_of_students)) 
 
-    list_of_students_with_seats = GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats)
+    list_of_students_with_seats = GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, seedvalue)
 
     ## the seating plan (showing the students)
     PrintOutSeatsWithStudents(LECTURE_ROOM, list_of_students_with_seats)
+
+    print unused_seats_info
 
     GenerateTextfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
     
