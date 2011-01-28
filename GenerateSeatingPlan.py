@@ -110,8 +110,8 @@ LIST_OF_LECTURE_ROOMS = [ \
         { 'name': "test1", 'data': HS_test1 } \
         ]
 
-NAME_OF_PDF_FILE_WITHOUT_EXTENSION = "Seating_Plan"
-NAME_OF_TXT_FILE_WITHOUT_EXTENSION = "Seating_Plan"
+BASE_FILE_NAME = "Students"
+NAME_OF_TXT_FILE_WITHOUT_EXTENSION = "Students"
 
 
 ## ======================================================================= ##
@@ -120,7 +120,15 @@ NAME_OF_TXT_FILE_WITHOUT_EXTENSION = "Seating_Plan"
 ##                                                                         ##
 ## ======================================================================= ##
 
-TEMP_FILENAME_STUDENTS_TEXFILE = "temp_students_by_lastname.tex"
+TEMP_FILENAME_PART_DESCRIBING_SEATING_PLAN="_Seating_Plan_by_Lastname"
+TEMP_FILENAME_PART_DESCRIBING_CHECKLIST="_Checklist_by_Seat"
+
+
+TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE = "temp_students_by_lastname.tex"
+FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION = BASE_FILE_NAME + TEMP_FILENAME_PART_DESCRIBING_SEATING_PLAN
+
+TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE = "temp_students_by_seats.tex"
+FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION = BASE_FILE_NAME + TEMP_FILENAME_PART_DESCRIBING_CHECKLIST
 
 LECTURE_ROOM_DEFAULT_VALUE = HS_i13
 LECTURE_ROOM = LECTURE_ROOM_DEFAULT_VALUE
@@ -194,8 +202,8 @@ parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
 parser.add_option("-q", "--quiet", dest="quiet", action="store_true",
                   help="do not output anything but just errors on console")
              
-parser.add_option("--ls", "--list-by-seat", dest="list_seats", action="store_true",
-                  help="create a list of students orderd by seat. Usefull to create a checklist")
+parser.add_option("--checklist", dest="checklist", action="store_true",
+                  help="creates a list of students orderd by seat")
 
 
 (options, args) = parser.parse_args()
@@ -426,7 +434,7 @@ def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, see
 
 def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_seats):
 
-    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '_by_lastname.txt', 'w')
+    file = open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w')
 
     file.write( "               Seating plan     " + lecture_room['name'] + "      by last name\n\n")
 
@@ -440,7 +448,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
 
 def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with_seats):
 
-    file = open(TEMP_FILENAME_STUDENTS_TEXFILE, 'w')
+    file = open(TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE, 'w')
 
     for student in list_of_students_with_seats:
         file.write( "\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
@@ -459,19 +467,52 @@ def compare_students_by_row_and_set(a, b):
 
 def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
 
-    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '_by_seats.txt', 'w')
+    txtfile = open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.txt', 'w')
+    if options.pdf:
+        latexfile = open(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE, 'w')
 
-    file.write( "               Seating plan     " + lecture_room['name'] + "      by seat\n\n")
+    ## ASCII/txt file header
+    txtfile.write( "               Seating plan     " + lecture_room['name'] + "      by seat\n\n")
     
     for student in sorted(list_of_students_with_seats, compare_students_by_row_and_set):
-       # print student
-       file.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
+
+       ## write student to ASCII/txt file
+       txtfile.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
             student['REGISTRATION_NUMBER'] + \
             "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
             "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
 
-def GenerateLatexMainFile(lecture_room):
+       if options.pdf:
+
+            probablyshortenedfirstname = ""
+            threshold_full_name = 25  ## try to shorten first names when full name exceeds this threshold and ...
+            threshold_first_name = 8  ## ... when first name exceeds this threshold
+
+            ## shorten first name if appropriate:
+            if len(student['FIRST_NAME_OF_STUDENT']) + len(student['FAMILY_NAME_OF_STUDENT']) > threshold_full_name and \
+                    len(student['FIRST_NAME_OF_STUDENT']) > threshold_first_name:
+                        probablyshortenedfirstname = student['FIRST_NAME_OF_STUDENT'][:threshold_first_name-3] + '\ldots{}'
+                        logging.debug("shortened first name of \"" + student['FIRST_NAME_OF_STUDENT'] + " " + \
+                                student['FAMILY_NAME_OF_STUDENT'] + "\" to \"" + probablyshortenedfirstname + \
+                                "\" because it exceeds threshold for long names")
+            else:
+                probablyshortenedfirstname = student['FIRST_NAME_OF_STUDENT']
+
+            ## write student to LaTeX temporary file:
+            latexfile.write( "\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
+                probablyshortenedfirstname + '}{' + \
+                student['REGISTRATION_NUMBER'] + '}{' + \
+                str(student['seat'][0]) + '}{' + \
+                str(chr(64 + student['seat'][0] )) + '}{' + \
+                str(student['seat'][1] ) + '}' + "\n" )
+
+    if options.pdf:
+        latexfile.flush()
+        os.fsync(latexfile.fileno())
+
+
+def GenerateLatexMainFileSortedByLastname(lecture_room):
 
     content = '''\\documentclass[%
 14pt,%
@@ -534,7 +575,7 @@ openright%
 \\hline
 \\hline \\\\[-5pt]
 \\endhead
-\\input{''' + TEMP_FILENAME_STUDENTS_TEXFILE + '''}
+\\input{''' + TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE + '''}
 \\hline
 \\end{longtable}
 
@@ -542,7 +583,78 @@ openright%
 %% end
 '''
 
-    file = open(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.tex', 'w')
+    file = open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION+'.tex', 'w')
+
+    file.write( content )
+    file.flush() 
+    os.fsync(file.fileno())
+
+def GenerateLatexMainFileSortedBySeat(lecture_room):
+
+    content = '''\\documentclass[%
+12pt,%
+a4paper,%
+twoside,%
+headinclude,%
+footexclude,%
+twocolumn,%
+parskip=half-,%
+openright%
+]{scrartcl}
+
+%% encoding:
+\\usepackage[ansinew]{inputenc}
+\\usepackage{ucs}
+%\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
+
+%% use up as much space as possible:
+\\usepackage{savetrees}
+
+%% using a loooong table possible over several pages:
+\\usepackage{longtable}
+
+\\pdfcompresslevel=9
+
+\\usepackage[%
+  pdftitle={Exam Checklist for Lecture Room ''' + lecture_room['name'] + '''}, %
+  pdfauthor={}, %
+  pdfsubject={Exam, ''' + lecture_room['name'] + '''}, %
+  pdfcreator={Accomplished with LaTeX2e and pdfLaTeX with hyperref-package under Debian GNU/Linux. No anmimals, MS-EULA or BSA-rules were harmed.},
+  pdfproducer={Checklist of GenerateSeatingPlan.py by Karl Voit},
+  pdfkeywords={Checklist, Seating Plan, Exam},
+  a4paper=true, %
+  pdftex=true, %
+  bookmarks=false, %
+  bookmarksopen=false, % when starting with AcrobatReader, the Bookmarkcolumn is opened
+  pdfpagemode=None,% None, UseOutlines, UseThumbs, FullScreen
+  plainpages=false, % correct, if pdflatex complains: ``destination with same identifier already exists''
+  colorlinks=false % turn off colored links (better for printout versions)
+]{hyperref}
+
+%% header and footer:
+\\usepackage{scrpage2}
+\\pagestyle{scrheadings}
+\\clearscrheadings
+\\clearscrplain
+\\chead{Exam Checklist of Lecture Room ''' + lecture_room['name'] + '''}
+\\ifoot{\\scriptsize{}page~\\pagemark}
+\\ofoot{\\tiny{}Generated using GenerateSeatingPlan.py by Karl Voit}
+
+\\begin{document}
+
+\\newcommand{\\vkExamStudent}[6]{%%
+\\makebox[\\linewidth][l]{$\\bigcirc$~#2~{\\bf{}#1};~#3,~R#4~S#6}\\\\[3mm]%%
+}%%
+
+\\sffamily
+\\newcommand{\\vkHeaderSettings}{\\bf }
+
+\\input{''' + TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE + '''}
+
+\\end{document}
+%% end'''
+
+    file = open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION+'.tex', 'w')
 
     file.write( content )
     file.flush() 
@@ -556,13 +668,18 @@ def InvokeLaTeX():
     ##     logging.critical("ERROR: pdflatex could not be found on your system!")
     ##     os.sys.exit(7)
 
-    ## for latexiterations in range(2):
-    ##     os.execlp('pdflatex', 'pdflatex', NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.tex')
-    if (os.system('pdflatex ' + NAME_OF_PDF_FILE_WITHOUT_EXTENSION + '.tex') or
-        os.system('pdflatex ' + NAME_OF_PDF_FILE_WITHOUT_EXTENSION + '.tex')):
-        logging.critical("ERROR: pdflatex returned with an error.")
-        logging.critical("You can try manually by invoking \"pdflatex " + NAME_OF_PDF_FILE_WITHOUT_EXTENSION + ".tex\"")
+    if (os.system('pdflatex ' + FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.tex') or
+        os.system('pdflatex ' + FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.tex')):
+        logging.critical("ERROR: pdflatex for list by lastname returned with an error.")
+        logging.critical("You can try manually by invoking \"pdflatex " + FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + ".tex\"")
         os.sys.exit(8)
+    
+    if options.checklist:
+        if (os.system('pdflatex ' + FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.tex') or \
+            os.system('pdflatex ' + FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.tex')):
+            logging.critical("ERROR: pdflatex for list by seats returned with an error.")
+            logging.critical("You can try manually by invoking \"pdflatex " + FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + ".tex\"")
+            os.sys.exit(9)
 
 
 def DeleteTempLaTeXFiles():
@@ -571,12 +688,19 @@ def DeleteTempLaTeXFiles():
     ##   are already in current directory and issue a warning
     ##   that these files will be deleted!
 
-    if not options.verbose: 
+    if options.verbose: 
+        print "omitting deletion of temporary files (because of verbose mode)"
+    else:
         logging.info("deleting temporary LaTeX files ...")
-        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.tex')
-        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.log')
-        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.aux')
-        os.remove(TEMP_FILENAME_STUDENTS_TEXFILE)
+        os.remove(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION+'.tex')
+        os.remove(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION+'.log')
+        os.remove(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION+'.aux')
+        os.remove(TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE)
+        if options.checklist:
+            os.remove(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE)
+            os.remove(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION+'.tex')
+            os.remove(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION+'.log')
+            os.remove(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION+'.aux')
         logging.info("deleting temporary LaTeX files finished")
     
 
@@ -684,13 +808,16 @@ def main():
 
     GenerateTextfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
     
-    GenerateTextfileSortedBySeat(LECTURE_ROOM, list_of_students_with_seats)
+    if options.checklist:
+        GenerateTextfileSortedBySeat(LECTURE_ROOM, list_of_students_with_seats)
 
     if options.pdf:
-       GenerateLatexfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
-       GenerateLatexMainFile(LECTURE_ROOM)
-       InvokeLaTeX()
-       DeleteTempLaTeXFiles()
+        GenerateLatexfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
+        GenerateLatexMainFileSortedByLastname(LECTURE_ROOM)
+        if options.checklist:
+            GenerateLatexMainFileSortedBySeat(LECTURE_ROOM)
+        InvokeLaTeX()
+        DeleteTempLaTeXFiles()
 
 if __name__ == "__main__":
     try:
