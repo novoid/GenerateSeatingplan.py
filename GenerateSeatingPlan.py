@@ -297,25 +297,7 @@ def PrintOutSeatsWithStudents(lecture_room, list_of_students):
 
 
 
-def compare_students_by_row_and_set(a, b):
-       
-        return cmp(a['seat'][0], b['seat'][0]) or cmp(a['seat'][1], b['seat'][1])
 
-
-def GenerateCheckList(list_of_students):
-    """ Generate a checklist"""
-
-    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '.checklist.txt', 'w')
-
-    file.write( "               Seating plan   by seat \n\n")
-    
-    for student in sorted(list_of_students, compare_students_by_row_and_set):
-       # print student
-       file.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
-            student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
-            student['REGISTRATION_NUMBER'] + \
-            "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
-            "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
 
 
 def FillRowWithStudentsOrLeaveEmpty(lecture_room, currentrow, list_of_occupied_seats):
@@ -444,7 +426,7 @@ def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, see
 
 def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_seats):
 
-    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '.txt', 'w')
+    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '_by_lastname.txt', 'w')
 
     file.write( "               Seating plan     " + lecture_room['name'] + "      by last name\n\n")
 
@@ -470,11 +452,24 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     file.flush() 
     os.fsync(file.fileno())
             
+def compare_students_by_row_and_set(a, b):
+       
+        return cmp(a['seat'][0], b['seat'][0]) or cmp(a['seat'][1], b['seat'][1])
+
 
 def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
 
-    pass
-    ## FIXXME
+    file = open(NAME_OF_TXT_FILE_WITHOUT_EXTENSION + '_by_seats.txt', 'w')
+
+    file.write( "               Seating plan     " + lecture_room['name'] + "      by seat\n\n")
+    
+    for student in sorted(list_of_students_with_seats, compare_students_by_row_and_set):
+       # print student
+       file.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
+            student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
+            student['REGISTRATION_NUMBER'] + \
+            "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
+            "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
 
 def GenerateLatexMainFile(lecture_room):
 
@@ -576,12 +571,13 @@ def DeleteTempLaTeXFiles():
     ##   are already in current directory and issue a warning
     ##   that these files will be deleted!
 
-    logging.info("deleting temporary LaTeX files ...")
-    os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.tex')
-    os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.log')
-    os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.aux')
-    os.remove(TEMP_FILENAME_STUDENTS_TEXFILE)
-    logging.info("deleting temporary LaTeX files finished")
+    if not options.verbose: 
+        logging.info("deleting temporary LaTeX files ...")
+        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.tex')
+        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.log')
+        os.remove(NAME_OF_PDF_FILE_WITHOUT_EXTENSION+'.aux')
+        os.remove(TEMP_FILENAME_STUDENTS_TEXFILE)
+        logging.info("deleting temporary LaTeX files finished")
     
 
 
@@ -688,10 +684,7 @@ def main():
 
     GenerateTextfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
     
-    GenerateCheckList(list_of_students_with_seats)
-
-    ## not implemented yet:
-    #GenerateTextfileSortedBySeat(LECTURE_ROOM, list_of_students_with_seats)
+    GenerateTextfileSortedBySeat(LECTURE_ROOM, list_of_students_with_seats)
 
     if options.pdf:
        GenerateLatexfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
