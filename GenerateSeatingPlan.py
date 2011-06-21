@@ -18,6 +18,7 @@ FIXXME:
     * look for the string FIXXME to improve this script
     * Sanity checks all over (cmd line parameters, CSV file, ...)
     * probably: if -p is given, ask for proceeding after displaying ASCII seating plan
+    * re-write random assignment of seats so that seats are filled from the front (and only last seats may stay empty)
 
 """
 
