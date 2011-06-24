@@ -154,6 +154,8 @@ NUM_FREE_SEATS = NUM_FREE_SEATS_DEFAULT_VALUE
 NUM_FREE_ROWS_DEFAULT_VALUE = 1
 NUM_FREE_ROWS = NUM_FREE_ROWS_DEFAULT_VALUE
 
+SEED = float(0.0) # default
+CHOSEN_SEED = float(0.0)
 
 USAGE = "\n\
          %prog --lr KNOWN_ROOM STUDENTS.csv\n\
@@ -193,6 +195,9 @@ parser.add_option("--fs", "--free_seats_to_seperate", dest="num_free_seats",
 
 parser.add_option("--fr", "--free_rows_to_seperate", dest="num_free_rows",
                   help="that many rows are empty before the next row is filled", metavar="INT")
+
+parser.add_option("-s","--seed", dest="seed", type="float",
+                  help="sets random seed (betweet [0.0,1.0) ) for shuffling students (default 0.0)", metavar="FLOAT")
 
 parser.add_option("-p", "--pdf", dest="pdf", action="store_true",
                   help="generates a PDF file with alphabetical student names and seating (requires pdflatex with savetrees, longtable, hyperref, and KOMA)")
@@ -419,9 +424,20 @@ def SelectRandomListElementAndRemoveItFromList(list,seedvalue):
     else:
         return None
 
+def getSeed():
+    if(CHOSEN_SEED):
+      seed = float(CHOSEN_SEED)
+    else:
+      seed = float(0.0)
+    if(seed >= 1.0 or seed < 0.0):
+      seed = float(0.0)
+    #print "used seed: " + str(seed)
+    return seed
 
 def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, seedvalue):
-
+    
+    shuffle(list_of_students, getSeed)
+    
     ## randomize students over all seats:
     for student in list_of_students:
         student['seat'] = SelectRandomListElementAndRemoveItFromList(list_of_available_seats,seedvalue)
@@ -434,6 +450,8 @@ def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, see
 
 
 def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_seats):
+    # well we need to sort the student list if the function name says so!
+    list_of_students_with_seats.sort(key=lambda s:s['FAMILY_NAME_OF_STUDENT'])
 
     file = open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w')
 
@@ -448,6 +466,8 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
             
 
 def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with_seats):
+    # well we need to sort the student list if the function name says so!
+    list_of_students_with_seats.sort(key=lambda s:s['FAMILY_NAME_OF_STUDENT'])
 
     file = open(TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE, 'w')
 
@@ -769,6 +789,12 @@ def main():
 
         logging.debug("LECTURE_ROOM is overwritten by command line parameter: %s" % LECTURE_ROOM['name']) 
 
+    global CHOSEN_SEED
+    if options.seed:
+        logging.debug("default value of SEED: %s" % SEED) 
+        CHOSEN_SEED = getSeed()
+        logging.debug("SEED " +
+            "is overwritten by command line parameter: %s" % getSeed()) 
 
     logging.debug("Student CSV file found")
 
