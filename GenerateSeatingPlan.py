@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Latest change: Mon Mar 08 11:49:34 CET 2010
+## auto last change for vim and Emacs: (whatever comes last)
+## Latest change: Mon Mar 08 11:49:34 CET 2010
+## Time-stamp: <2011-12-15 13:34:17 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
 
-:copyright: (c) 2010 by Karl Voit <Karl.Voit@IST.TUGraz.at>
+:copyright: (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>
 :license: GPL v2 or any later version
 :bugreports: <Karl.Voit@IST.TUGraz.at>
 
@@ -19,6 +21,7 @@ FIXXME:
     * Sanity checks all over (cmd line parameters, CSV file, ...)
     * probably: if -p is given, ask for proceeding after displaying ASCII seating plan
     * re-write random assignment of seats so that seats are filled from the front (and only last seats may stay empty)
+    * check seed parameter
 
 """
 
@@ -97,6 +100,21 @@ HS_B = { 'rows': 10,
         'name': "Hoersaal B", 
         'seatstoomit': [ ] }
 
+## FIXXME: I did not check P1 in real (yet) so just to make sure I completely
+##         omitted the first and the last row. (no tables?)
+HS_P1 = { 'rows': 19, 
+        'columns': 26, 
+        'name': "Hoersaal P1", 
+        'seatstoomit': [ [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], 
+            [1, 9], [1, 10], [1, 11], [1, 12], [1, 13], [1, 14], [1, 15], [1, 16], 
+            [1, 17], [1, 18], [1, 19], [1, 20], [1, 21], [1, 22], [1, 23], [1, 24], 
+            [1, 25], [1, 26],
+            [19, 1], [19, 2], [19, 3], [19, 4], [19, 5], [19, 6], [19, 7], [19, 8], 
+            [19, 9], [19, 10], [19, 11], [19, 12], [19, 13], [19, 14], [19, 15], [19, 16], 
+            [19, 17], [19, 18], [19, 19], [19, 20], [19, 21], [19, 22], [19, 23], [19, 24], 
+            [19, 25], [19, 26]
+            ] }
+
 HS_test1 = { 'rows': 4, 
         'columns': 7, 
         'name': "Test-Hoersaal", 
@@ -108,6 +126,7 @@ LIST_OF_LECTURE_ROOMS = [ \
         { 'name': "HS_i12", 'data': HS_i12 }, \
         { 'name': "HS_i13", 'data': HS_i13 }, \
         { 'name': "HS_B", 'data': HS_B }, \
+        { 'name': "HS_P1", 'data': HS_P1 }, \
         { 'name': "test1", 'data': HS_test1 } \
         ]
 
