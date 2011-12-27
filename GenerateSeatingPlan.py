@@ -463,7 +463,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     for student in list_of_students_with_seats:
         file.write( student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
-            '[...]' + student['REGISTRATION_NUMBER'][-4:].ljust(10, '.') + \
+            student['REGISTRATION_NUMBER'][:4] + 'XXX'.ljust(10, '.') + \
             "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0] )) + \
             "  seat " + str(student['seat'][1] ).rjust(3) + "\n\n" )
             
@@ -477,7 +477,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     for student in list_of_students_with_seats:
         file.write( "\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
             student['FIRST_NAME_OF_STUDENT'] + '}{' + \
-            '\ldots{} ' + student['REGISTRATION_NUMBER'][-4:] + '}{' + \
+            student['REGISTRATION_NUMBER'][:4] + 'XXX}{' + \
             str(student['seat'][0]) + '}{' + \
             str(chr(64 + student['seat'][0] )) + '}{' + \
             str(student['seat'][1] ) + '}' + "\n" )
