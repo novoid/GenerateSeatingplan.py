@@ -364,7 +364,7 @@ def FillRowWithStudentsOrLeaveEmpty(lecture_room, currentrow, list_of_occupied_s
             current_num_of_empty_seats += 1
 
             ## continue with seating students again
-            if current_num_of_empty_seats == NUM_FREE_SEATS:
+            if current_num_of_empty_seats >= NUM_FREE_SEATS:
                 current_num_of_empty_seats = 0
                 current_num_of_students_close_together=0
                 filling_seats = True
@@ -403,7 +403,7 @@ def GenerateListOfAllSeats(lecture_room):
             ## fill me the row:
             list_of_occupied_seats = FillRowWithStudentsOrLeaveEmpty(lecture_room, currentrow, list_of_occupied_seats) 
 
-            if current_num_of_filled_rows == ROWS_WITH_STUDENTS_TO_KEEP_TOGETHER:
+            if current_num_of_filled_rows >= ROWS_WITH_STUDENTS_TO_KEEP_TOGETHER:
                 ## next row should be an empty one
 
                 current_num_of_filled_rows = 0
@@ -418,13 +418,13 @@ def GenerateListOfAllSeats(lecture_room):
             current_num_of_empty_rows += 1
 
             ## next row should be filled with students again
-            if current_num_of_empty_rows == NUM_FREE_ROWS:
+            if current_num_of_empty_rows >= NUM_FREE_ROWS:
                 current_num_of_empty_rows = 0
                 filling_row = True
                 continue ## in next row
 
             ## keep on with empty rows
-            elif current_num_of_empty_rows <= NUM_FREE_ROWS:
+            elif current_num_of_empty_rows < NUM_FREE_ROWS:
                 continue ## in next row
 
     logging.debug("number of (dumb) seats not considered seats to omit: %s" % str(len(list_of_occupied_seats)) )
