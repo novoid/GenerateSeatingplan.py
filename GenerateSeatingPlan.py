@@ -174,7 +174,6 @@ NUM_FREE_ROWS_DEFAULT_VALUE = 1
 NUM_FREE_ROWS = NUM_FREE_ROWS_DEFAULT_VALUE
 
 SEED = float(0.0) # default
-CHOSEN_SEED = float(0.0)
 
 USAGE = "\n\
          %prog --lr KNOWN_ROOM STUDENTS.csv\n\
@@ -216,7 +215,7 @@ parser.add_option("--fr", "--free_rows_to_seperate", dest="num_free_rows",
                   help="that many rows are empty before the next row is filled", metavar="INT")
 
 parser.add_option("-s","--seed", dest="seed", type="float",
-                  help="sets random seed (betweet [0.0,1.0) ) for shuffling students (default 0.0)", metavar="FLOAT")
+                  help="sets random seed for shuffling students (default 0.0)", metavar="FLOAT")
 
 parser.add_option("-p", "--pdf", dest="pdf", action="store_true",
                   help="generates a PDF file with alphabetical student names and seating (requires pdflatex with savetrees, longtable, hyperref, and KOMA)")
@@ -432,8 +431,8 @@ def GenerateListOfAllSeats(lecture_room):
 
     return list_of_occupied_seats
 
-def SelectRandomListElementAndRemoveItFromList(list,seedvalue):
-    seed(seedvalue)
+def SelectRandomListElementAndRemoveItFromList(list):
+
     if list != []:
         list_element_index = randrange( len(list) )
         list_element = list[list_element_index]
@@ -443,27 +442,12 @@ def SelectRandomListElementAndRemoveItFromList(list,seedvalue):
     else:
         return None
 
-def getSeed():
-    if(CHOSEN_SEED):
-      seed = float(CHOSEN_SEED)
-    else:
-      seed = float(0.0)
-    if(seed >= 1.0 or seed < 0.0):
-      seed = float(0.0)
-    #print "used seed: " + str(seed)
-    return seed
-
-def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, seedvalue):
-    
-    shuffle(list_of_students, getSeed)
+def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats):
+    shuffle(list_of_students)
     
     ## randomize students over all seats:
     for student in list_of_students:
-        student['seat'] = SelectRandomListElementAndRemoveItFromList(list_of_available_seats,seedvalue)
-
-    ## randomize over all students, beginning to fill seats from first row upward:
-    ## FIXXME: to be done
-    ##     idea: iterate over seats and assign random student to it
+        student['seat'] = SelectRandomListElementAndRemoveItFromList(list_of_available_seats)
 
     return list_of_students
 
@@ -808,21 +792,21 @@ def main():
 
         logging.debug("LECTURE_ROOM is overwritten by command line parameter: %s" % LECTURE_ROOM['name']) 
 
-    global CHOSEN_SEED
+    global SEED
     if options.seed:
-        logging.debug("default value of SEED: %s" % SEED) 
-        CHOSEN_SEED = getSeed()
+        logging.debug("default value of SEED: %s" % SEED)
+        SEED = options.seed 
         logging.debug("SEED " +
-            "is overwritten by command line parameter: %s" % getSeed()) 
+            "is overwritten by command line parameter: %s" % SEED) 
+            
+    # Initializing the PRNG with a seed value.
+    # This is done once at this point. This should suffice
+    # to produce deterministic re-runs.             
+    seed(SEED)            
 
     logging.debug("Student CSV file found")
 
     list_of_students = ReadInStudentsFromCsv( options.students_csv_file )
-
-    ## use the file size of the CSV file to initialize random generator
-    ## this results in exact results with the very same input file
-    ## FIXXME: overwrite this value with an optional command line argument?
-    seedvalue = size = os.path.getsize( options.students_csv_file )
 
     #logging.info("Number of students:  %s" % str(len(list_of_students)) ) 
     print "Number of students:  %s" % str(len(list_of_students)) 
@@ -845,7 +829,7 @@ def main():
 
     unused_seats_info = "(Unused seats: %s)" % str(len(list_of_available_seats) - len(list_of_students)) 
 
-    list_of_students_with_seats = GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats, seedvalue)
+    list_of_students_with_seats = GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats)
 
     ## the seating plan (showing the students)
     PrintOutSeatsWithStudents(LECTURE_ROOM, list_of_students_with_seats)
