@@ -142,13 +142,15 @@ NAME_OF_TXT_FILE_WITHOUT_EXTENSION = "Students"
 
 TEMP_FILENAME_PART_DESCRIBING_SEATING_PLAN="_Seating_Plan_by_Lastname"
 TEMP_FILENAME_PART_DESCRIBING_CHECKLIST="_Checklist_by_Seat"
-
+TEMP_FILENAME_PART_DESCRIBING_TABLE_FORMAT="_Seating_Plan_Table_Format"
 
 TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE = "temp_students_by_lastname.tex"
 FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION = BASE_FILE_NAME + TEMP_FILENAME_PART_DESCRIBING_SEATING_PLAN
 
 TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE = "temp_students_by_seats.tex"
 FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION = BASE_FILE_NAME + TEMP_FILENAME_PART_DESCRIBING_CHECKLIST
+
+FILENAME_MAIN_TABLE_WITHOUT_EXTENSION = BASE_FILE_NAME + TEMP_FILENAME_PART_DESCRIBING_TABLE_FORMAT
 
 LECTURE_ROOM_DEFAULT_VALUE = HS_i13
 LECTURE_ROOM = LECTURE_ROOM_DEFAULT_VALUE
@@ -193,7 +195,6 @@ an email to Karl.Voit@IST.TUGraz.at\n\
 \n\
 Run %prog --help for usage hints\n"
 
-
 parser = OptionParser(usage=USAGE)
 
 parser.add_option("-c", "--csvfile", dest="students_csv_file",
@@ -220,6 +221,12 @@ parser.add_option("-s","--seed", dest="seed", type="float",
 parser.add_option("-p", "--pdf", dest="pdf", action="store_true",
                   help="generates a PDF file with alphabetical student names and seating (requires pdflatex with savetrees, longtable, hyperref, and KOMA)")
 
+parser.add_option("-t", "--table", dest="table", action="store_true",
+                  help="generates a seating plan in (HTML) table format.")
+                  
+parser.add_option("-u", "--tableturn", dest="tableturn", action="store_true",
+                  help="Writes the table upside down (view for lecturer). Might not work with all browsers.")
+                  
 parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                   help="enable verbose mode")
 
@@ -326,9 +333,6 @@ def PrintOutSeatsWithStudents(lecture_room, list_of_students):
         print linestring
         linestring = ''
     print ## one final line to seperate
-
-
-
 
 
 
@@ -483,8 +487,71 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
             str(student['seat'][1] ) + '}' + "\n" )
     file.flush() 
     os.fsync(file.fileno())
+
+def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
+
+    # FIXXME: Sizing needs some improvement.
+    # FIXXME: Turning text upside down might not work for all browsers.
+    
+    htmlfile = open(FILENAME_MAIN_TABLE_WITHOUT_EXTENSION + '.html', 'w')
+    
+    htmlfile.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"\n')
+    htmlfile.write('        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n')
+    htmlfile.write('<html xmlns="http://www.w3.org/1999/xhtml">\n')
+    htmlfile.write('<head>\n')
+    htmlfile.write(' 	<title>Seating Plan</title>\n')
+    htmlfile.write('	<meta http-equiv="content-type"\n') 
+    htmlfile.write('		content="text/html;charset=iso-8859-1" />\n')
+    htmlfile.write('		<STYLE type="text/css">\n')
+    htmlfile.write('		table {table-layout: fixed;}\n')
+    htmlfile.write('    td {border: 1px solid #000000; text-align: center; width: 100px; font-size: 10pt; height: 60px; %s}\n' \
+       % ("webkit-transform: rotate(-180deg); -moz-transform: rotate(-180deg); filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);" \
+         if options.tableturn else ""))
+    htmlfile.write('    .empty {background-color: #EEEEEE}\n')
+    htmlfile.write('    .omit {font-style: bold; font-size: 20pt; background-color: #AAAAAA}\n')
+    htmlfile.write('    .header {font-size: 20pt; font-style: bold}\n')
+    htmlfile.write('    .number {border: 0px}\n')
+    htmlfile.write('    </STYLE>\n')
+    htmlfile.write('</head>\n')
+    htmlfile.write('<body>\n')
+    htmlfile.write('<table style="width: %dpx;">\n' % ((lecture_room['columns']+1)*100))
+    htmlfile.write('<tr><td class="number">&nbsp;</td><td class="header" colspan="%d" style="width: %dpx">Front</td></tr>\n' % \
+       (lecture_room['columns'], (lecture_room['columns'])*100))
+    htmlfile.write('<tr>\n')
+    htmlfile.write('<td class="number">&nbsp;</td>')
+    for i in range(1, lecture_room['columns']+1):
+      htmlfile.write('<td class="number">%d</td>' % i)
+    htmlfile.write('</tr>\n')
+    for i in range(1, lecture_room['rows']+1):
+        htmlfile.write('<tr>\n')
+        htmlfile.write('<td class="number">%d</td>' % i)
+        for j in range(1, lecture_room['columns']+1):
+            seat_data = '&nbsp;'
+            seat_class = 'empty'
+            if [i, j] in lecture_room['seatstoomit']:
+                seat_data = 'X'
+                seat_class = 'omit'
+            students_on_this_seat = [student for student in list_of_students_with_seats if student['seat']==[i,j]]
+            if len(students_on_this_seat) > 1:
+                logging.critical("ERROR: More than one student on seat [%d,%d]. This must be an internal error." % (i, j))
+            elif len(students_on_this_seat) == 1:
+              student = students_on_this_seat[0]
+              seat_class = 'occupied'
+              seat_data = student['FAMILY_NAME_OF_STUDENT'] + \
+                  '<br />' +  student['FIRST_NAME_OF_STUDENT'] + \
+                  '<br />' +  student['REGISTRATION_NUMBER'][:4] + 'XXX'    
+            htmlfile.write('<td class="%s">%s</td>' % (seat_class, seat_data))
+        htmlfile.write('\n</tr>\n')
+    htmlfile.write('</table>')      
+        
+
+    htmlfile.write('</body>\n')
+    htmlfile.write('</html>\n')
+    htmlfile.flush()
+    os.fsync(htmlfile.fileno())
+    
             
-def compare_students_by_row_and_set(a, b):
+def compare_students_by_row_and_seat(a, b):
        
         return cmp(a['seat'][0], b['seat'][0]) or cmp(a['seat'][1], b['seat'][1])
 
@@ -498,7 +565,7 @@ def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
     ## ASCII/txt file header
     txtfile.write( "               Seating plan     " + lecture_room['name'] + "      by seat\n\n")
     
-    for student in sorted(list_of_students_with_seats, compare_students_by_row_and_set):
+    for student in sorted(list_of_students_with_seats, compare_students_by_row_and_seat):
 
        ## write student to ASCII/txt file
        txtfile.write("[ ] " +  student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
@@ -848,6 +915,10 @@ def main():
             GenerateLatexMainFileSortedBySeat(LECTURE_ROOM)
         InvokeLaTeX()
         DeleteTempLaTeXFiles()
+        
+    if options.table:
+      GenerateHtmlFileWithTableFormat(LECTURE_ROOM, list_of_students_with_seats)        
+        
 
 if __name__ == "__main__":
     try:
