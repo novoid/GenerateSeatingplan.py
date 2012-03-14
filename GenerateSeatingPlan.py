@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2012-01-20 17:08:34 vk>
+## Time-stamp: <2012-03-14 19:51:54 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -186,7 +186,7 @@ lecture room.\n\
 \n\
 Several things can be manipulated according to your needs. \n\
 \n\
-  :copyright:  (c) 2010 by Karl Voit <Karl.Voit@IST.TUGraz.at>\n\
+  :copyright:  (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>\n\
   :license:    GPL v2 or any later version\n\
   :bugreports: <Karl.Voit@IST.TUGraz.at>\n\
 \n\
