@@ -1,4 +1,4 @@
-# Time-stamp: <2012-04-06 15:31:19 vk>
+# Time-stamp: <2012-04-06 15:35:15 vk>
 # -*- coding: utf-8 -*-
 
 [[https://online.tugraz.at/][TUGRAZonline]] is an instance of [[http://campusonline.tugraz.at/][CAMPUSonline]] which is used for campus
@@ -20,12 +20,10 @@ interested in deriving randomized seating plans. This is for you :-)
 : 
 : Several things can be manipulated according to your needs. 
 : 
+:   :URL:        https://github.com/novoid/GenerateSeatingplan.py
 :   :copyright:  (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>
 :   :license:    GPL v2 or any later version
 :   :bugreports: <Karl.Voit@IST.TUGraz.at>
-: 
-: If you want write access to the TU Graz SVN respository of this tool, send 
-: an email to Karl.Voit@IST.TUGraz.at
 : 
 : Run GenerateSeatingPlan.py --help for usage hints
 : 

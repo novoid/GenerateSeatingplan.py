@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2012-04-04 19:28:09 vk>
+## Time-stamp: <2012-04-06 15:34:38 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -10,9 +10,6 @@ GenerateSeatingPlan.py
 :copyright: (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>
 :license: GPL v2 or any later version
 :bugreports: <Karl.Voit@IST.TUGraz.at>
-
-If you want access to the TU Graz SVN respository of this tool, send an email
-to Karl.Voit@IST.TUGraz.at
 
 See USAGE below for details!
 
@@ -180,25 +177,23 @@ SEED = float(0.0)  # default
 USAGE = "\n\
          %prog --lr KNOWN_ROOM STUDENTS.csv\n\
 \n\
-GenerateSeatingPlan.py takes a TUGrazOnline CSV file including the students\n\
+GenerateSeatingPlan.py takes a CAMPUSonline CSV file including the students\n\
 attending an exam and generates a randomized seating plan for a specific\n\
 lecture room.\n\
 \n\
 Several things can be manipulated according to your needs. \n\
 \n\
+  :URL:        https://github.com/novoid/GenerateSeatingplan.py\n\
   :copyright:  (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>\n\
   :license:    GPL v2 or any later version\n\
   :bugreports: <Karl.Voit@IST.TUGraz.at>\n\
-\n\
-If you want write access to the TU Graz SVN respository of this tool, send \n\
-an email to Karl.Voit@IST.TUGraz.at\n\
 \n\
 Run %prog --help for usage hints\n"
 
 parser = OptionParser(usage=USAGE)
 
 parser.add_option("-c", "--csvfile", dest="students_csv_file",
-                  help="CSV file of students in TUGrazOnline format. You can add columns but original header line is required.", metavar="FILE")
+                  help="CSV file of students in CAMPUSonline format. You can add columns but original header line is required.", metavar="FILE")
 
 parser.add_option("--lr", "--lecture-room", dest="lecture_room",
                 help="the short name of a known lecture room. so far, following lecture rooms are supported: " + \
