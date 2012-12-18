@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2012-04-06 15:34:38 vk>
+## Time-stamp: <2012-12-18 10:25:23 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -97,20 +97,10 @@ HS_B = {'rows': 10,
         'name': "Hoersaal B",
         'seatstoomit': []}
 
-## FIXXME: I did not check P1 in real (yet) so just to make sure I completely
-##         omitted the first and the last row. (no tables?)
 HS_P1 = {'rows': 19,
         'columns': 26,
         'name': "Hoersaal P1",
-        'seatstoomit': [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8],
-            [1, 9], [1, 10], [1, 11], [1, 12], [1, 13], [1, 14], [1, 15], [1, 16],
-            [1, 17], [1, 18], [1, 19], [1, 20], [1, 21], [1, 22], [1, 23], [1, 24],
-            [1, 25], [1, 26],
-            [19, 1], [19, 2], [19, 3], [19, 4], [19, 5], [19, 6], [19, 7], [19, 8],
-            [19, 9], [19, 10], [19, 11], [19, 12], [19, 13], [19, 14], [19, 15], [19, 16],
-            [19, 17], [19, 18], [19, 19], [19, 20], [19, 21], [19, 22], [19, 23], [19, 24],
-            [19, 25], [19, 26]
-            ]}
+        'seatstoomit': []}
 
 HS_test1 = {'rows': 4,
         'columns': 7,
