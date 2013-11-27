@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2012-12-18 10:25:23 vk>
+## Time-stamp: <2013-11-27 07:52:04 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -67,15 +67,16 @@ import csv
 ##        to the detailed data sets. Please make sure, that they match
 ##        Must not continue special characters nor spaces!
 
-HS_i7 = {'rows': 15,
-        'columns': 16,
-        'name': "Hoersaal i7",
-        'seatstoomit': [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8],
-            [1, 9], [1, 10], [1, 11], [1, 12], [1, 13], [1, 14], [1, 15], [1, 16],
-            [2, 1], [2, 2], [3, 1], [3, 2],
-            [4, 1], [4, 2], [5, 1], [5, 2], [6, 1], [6, 2], [7, 1], [7, 2],
-            [15, 1], [15, 2], [15, 11], [15, 12], [15, 13], [15, 14], [15, 15], [15, 16]
-            ]}
+#NOTE: i7 was refurbished in 2013 and those are the values for the old i7 which have to be updated:
+#OLD# HS_i7 = {'rows': 15,
+#OLD#         'columns': 16,
+#OLD#         'name': "Hoersaal i7",
+#OLD#         'seatstoomit': [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8],
+#OLD#             [1, 9], [1, 10], [1, 11], [1, 12], [1, 13], [1, 14], [1, 15], [1, 16],
+#OLD#             [2, 1], [2, 2], [3, 1], [3, 2],
+#OLD#             [4, 1], [4, 2], [5, 1], [5, 2], [6, 1], [6, 2], [7, 1], [7, 2],
+#OLD#             [15, 1], [15, 2], [15, 11], [15, 12], [15, 13], [15, 14], [15, 15], [15, 16]
+#OLD#             ]}
 
 HS_i11 = {'rows': 10,
         'columns': 9,
@@ -108,7 +109,7 @@ HS_test1 = {'rows': 4,
         'seatstoomit': [[4, 1], [4, 2], [4, 3], [3, 7]]}
 
 LIST_OF_LECTURE_ROOMS = [\
-        {'name': "HS_i7", 'data': HS_i7}, \
+#OLD#        {'name': "HS_i7", 'data': HS_i7}, \
         {'name': "HS_i11", 'data': HS_i11}, \
         {'name': "HS_i12", 'data': HS_i12}, \
         {'name': "HS_i13", 'data': HS_i13}, \
