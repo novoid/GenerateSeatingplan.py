@@ -78,6 +78,12 @@ import csv
 #OLD#             [15, 1], [15, 2], [15, 11], [15, 12], [15, 13], [15, 14], [15, 15], [15, 16]
 #OLD#             ]}
 
+## Roderick Bloem 20130128, from TUGonline.
+HS_i1 = { 'rows': 9,
+          'columns':13,
+          'name': "Hoersaal i1",
+          'seatstoomit': [] }
+
 HS_i11 = {'rows': 10,
         'columns': 9,
         'name': "Hoersaal i11",
@@ -93,10 +99,38 @@ HS_i13 = {'rows': 14,
         'name': "Hoersaal i13",
         'seatstoomit': [[14, 10], [14, 11], [14, 12], [14, 13]]}
 
+## RB 20140119, not checked
+HS_A = {
+    'rows': 10,
+    'columns': 15,
+    'name': "Hoersaal A",
+    'seatstoomit': [ [9,1], [9,15], [10,1], [10,2], [10,14], [10,15]]
+}
+
 HS_B = {'rows': 10,
         'columns': 16,
         'name': "Hoersaal B",
         'seatstoomit': []}
+
+## RB 20130527. Checked 20140120.
+## First row does not have tables
+## added handicap: seats are not numbered.
+HS_H = {
+  'rows' : 11,
+  'columns' : 17,
+  'name' : "Hoersaal HS H",
+  'seatstoomit': [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[1,11],[1,12],[1,13],[1,14],[1,15],[1,16],[1,17],[1,18],[1,19], [2,18],[2,19], [3,18],[3,19], [4,18],[4,19], [5,18],[5,19], [6,19], [7,19],  [9,1],[9,19], [10,1],[10,2],[10,3],[10,4],[10,16],[10,17],[10,18],[10,19], [11,1],[11,2],[11,3],[11,4],[11,17],[11,18],[11,19] ]
+}
+
+## Roderick Bloem 20130128. TUGonline claims 9 columns, but I find that
+## unrealistic.  The first two rows are separate tables, but they were
+## available when I held an exam there.
+HS_VI = { 'rows': 11,
+          'columns': 8,
+          'name': "Hoersaal VI",
+          'seatstoomit' : []
+##          'seatstoomit': [ [1, 1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [2,1], [2,2], [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9]]
+}
 
 HS_P1 = {'rows': 19,
         'columns': 26,
@@ -112,9 +146,12 @@ LIST_OF_LECTURE_ROOMS = [\
 #OLD#        {'name': "HS_i7", 'data': HS_i7}, \
         {'name': "HS_i11", 'data': HS_i11}, \
         {'name': "HS_i12", 'data': HS_i12}, \
-        {'name': "HS_i13", 'data': HS_i13}, \
+        {'name': "HS_i13", 'data': HS_i13}, \\
+        {'name': "HS_A", 'data': HS_A }, \
         {'name': "HS_B", 'data': HS_B}, \
+        {'name': "HS_H", 'data': HS_H }, \
         {'name': "HS_P1", 'data': HS_P1}, \
+        {'name': "HS_VI", 'data': HS_VI },\
         {'name': "test1", 'data': HS_test1} \
         ]
 
