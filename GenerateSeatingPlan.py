@@ -98,6 +98,12 @@ HS_i13 = {'rows': 14,
         'columns': 22,
         'name': "Hoersaal i13",
         'seatstoomit': [[14, 10], [14, 11], [14, 12], [14, 13]]}
+        
+HS_i14 = {'rows': 9,
+        'columns': 4,
+        'name': "Hoersaal i14",
+        'seatstoomit': []}
+        
 
 ## RB 20140119, not checked
 HS_A = {
@@ -111,6 +117,17 @@ HS_B = {'rows': 10,
         'columns': 16,
         'name': "Hoersaal B",
         'seatstoomit': []}
+
+HS_D = {'rows': 6,
+        'columns': 10,
+        'name': "Hoersaal D",
+        'seatstoomit': [[6,9], [6,10] ]}
+        
+HS_G = {'rows': 12,
+        'columns': 20,
+        'name': "Hoersaal G",
+        'seatstoomit': []}
+        
 
 ## RB 20130527. Checked 20140120.
 ## First row does not have tables
@@ -146,9 +163,12 @@ LIST_OF_LECTURE_ROOMS = [\
 #OLD#        {'name': "HS_i7", 'data': HS_i7}, \
         {'name': "HS_i11", 'data': HS_i11}, \
         {'name': "HS_i12", 'data': HS_i12}, \
-        {'name': "HS_i13", 'data': HS_i13}, \\
+        {'name': "HS_i13", 'data': HS_i13}, \
+        {'name': "HS_i14", 'data': HS_i14}, \
         {'name': "HS_A", 'data': HS_A }, \
         {'name': "HS_B", 'data': HS_B}, \
+        {'name': "HS_D", 'data': HS_D}, \
+        {'name': "HS_G", 'data': HS_G}, \
         {'name': "HS_H", 'data': HS_H }, \
         {'name': "HS_P1", 'data': HS_P1}, \
         {'name': "HS_VI", 'data': HS_VI },\
