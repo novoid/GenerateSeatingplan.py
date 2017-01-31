@@ -47,6 +47,7 @@ interested in deriving randomized seating plans. This is for you :-)
 :                         that many seats are empty before the next student sits
 :   --fr=INT, --free_rows_to_seperate=INT
 :                         that many rows are empty before the next row is filled
+:   --fff                 fill from front, begins to seat students from front row
 :   -s FLOAT, --seed=FLOAT
 :                         sets random seed for shuffling students (default 0.0)
 :   -p, --pdf             generates a PDF file with alphabetical student names
