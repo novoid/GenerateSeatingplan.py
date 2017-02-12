@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
