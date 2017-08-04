@@ -164,6 +164,22 @@ HS_VI = { 'rows': 11,
 ##          'seatstoomit': [ [1, 1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [2,1], [2,2], [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9]]
 }
 
+## Christian Schindler 20170602.
+## Longest (last) row has theoretically 20 seats. practically 11.
+## Due to the odd geometry of the room, the first row hast 14 seats.
+## First row: without tables, two seats are for wheelchairs.
+HS_I = { 'rows':15,
+         'columns':20,
+         'name': "Hoersaal I",
+         'seatstoomit':[ [1,1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10], [1,11], [1,12], [1,13],
+                         [1,14], [1,15], [1,16], [1,17], [1,18], [1,19], [1,20], [2,16], [2,17], [2,18], [2,19], [2,20],
+                         [3,16], [3,17], [3, 18], [3,19], [3, 20],[4,16], [4,17], [4,18], [4,19], [4,20],
+                         [5,17], [5,18], [5, 19], [5,20], [6,17], [6,18], [6,19], [6,20],
+                         [7,17], [7,18], [7, 19], [7,20], [8,18], [8,19], [8,20], [9,18], [9,19], [9,20],
+                         [10,19], [10,20], [11,19], [11,20], [12,19], [12,20], [13,20], [14,20],
+                         [15,1], [15,2], [15,3], [15,4], [15,5], [15,6], [15,7], [15,8]]
+}
+
 HS_test1 = {'rows': 4,
         'columns': 7,
         'name': "Test-Hoersaal",
@@ -183,6 +199,7 @@ LIST_OF_LECTURE_ROOMS = [\
         {'name': "HS_H", 'data': HS_H}, \
         {'name': "HS_P1", 'data': HS_P1}, \
         {'name': "HS_VI", 'data': HS_VI},\
+        {'name': "HS_I", 'data': HS_I},\
         {'name': "test1", 'data': HS_test1} \
         ]
 
@@ -231,6 +248,10 @@ NUM_FREE_SEATS = NUM_FREE_SEATS_DEFAULT_VALUE
 NUM_FREE_ROWS_DEFAULT_VALUE = 1
 NUM_FREE_ROWS = NUM_FREE_ROWS_DEFAULT_VALUE
 
+STUDENT_REGNUM_LEN = 8
+STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN = 5
+STUDENT_REGNUM_MASK_LEN = STUDENT_REGNUM_LEN - STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN
+
 SEED = float(0.0)  # default
 
 USAGE = "\n\
@@ -264,10 +285,10 @@ parser.add_option("--sa", "--students_adjoined", dest="students_side_by_side",
 parser.add_option("--ra", "--filled_rows_adjoined", dest="occupied_row_before_empty_line",
                   help="that many rows are being filled with students before the next empty row(s)", metavar="INT")
 
-parser.add_option("--fs", "--free_seats_to_seperate", dest="num_free_seats",
+parser.add_option("--fs", "--free_seats_to_separate", dest="num_free_seats",
                   help="that many seats are empty before the next student sits", metavar="INT")
 
-parser.add_option("--fr", "--free_rows_to_seperate", dest="num_free_rows",
+parser.add_option("--fr", "--free_rows_to_separate", dest="num_free_rows",
                   help="that many rows are empty before the next row is filled", metavar="INT")
 
 parser.add_option("-s", "--seed", dest="seed", type="float",
@@ -534,7 +555,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     for student in list_of_students_with_seats:
         file.write(student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
-            student['REGISTRATION_NUMBER'][:4] + 'XXX'.ljust(10, '.') + \
+            student['REGISTRATION_NUMBER'][:STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN] + ('X'*STUDENT_REGNUM_MASK_LEN).ljust(10, '.') + \
             "  row " + str(student['seat'][0]).rjust(3) + "/" + str(chr(64 + student['seat'][0])) + \
             "  seat " + str(student['seat'][1]).rjust(3) + "\n\n")
 
@@ -548,7 +569,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     for student in list_of_students_with_seats:
         file.write("\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
             student['FIRST_NAME_OF_STUDENT'] + '}{' + \
-            student['REGISTRATION_NUMBER'][:4] + 'XXX}{' + \
+            student['REGISTRATION_NUMBER'][:STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN] + 'X'*STUDENT_REGNUM_MASK_LEN+'}{' + \
             str(student['seat'][0]) + '}{' + \
             str(chr(64 + student['seat'][0])) + '}{' + \
             str(student['seat'][1]) + '}' + "\n")
@@ -607,7 +628,7 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
                 seat_class = 'occupied'
                 seat_data = student['FAMILY_NAME_OF_STUDENT'] + \
                     '<br />' + student['FIRST_NAME_OF_STUDENT'] + \
-                    '<br />' + student['REGISTRATION_NUMBER'][:4] + 'XXX'
+                    '<br />' + student['REGISTRATION_NUMBER'][:STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN] + 'X'*STUDENT_REGNUM_MASK_LEN
             htmlfile.write('<td class="%s">%s</td>' % (seat_class, seat_data))
         htmlfile.write('\n</tr>\n')
     htmlfile.write('</table>')
