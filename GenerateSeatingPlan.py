@@ -27,9 +27,10 @@ import logging
 import os
 from optparse import OptionParser
 from random import *
+import codecs
 
 ## for CSV
-import csv
+import unicodecsv as csv
 
 ## debugging:   for setting a breakpoint:  pdb.set_trace()
 #import pdb
@@ -342,8 +343,10 @@ def handle_logging():
 
 
 def ReadInStudentsFromCsv(csvfilename):
-
-    csvReader = csv.DictReader(open(csvfilename), delimiter=';', quotechar='"')
+    csvFile = open(csvfilename,"rb")
+    ## get rid of utf-8 BOM since unicodecsv can't deal with that an quotes first key
+    csvFile.read(3) 
+    csvReader = csv.DictReader(csvFile, delimiter=';', quotechar='"', encoding="utf-8")
     students_list = []
 
     for row in csvReader:
@@ -548,10 +551,10 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     # well we need to sort the student list if the function name says so!
     list_of_students_with_seats.sort(key=lambda s: s['FAMILY_NAME_OF_STUDENT'])
 
-    file = open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w')
+    file = codecs.open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
 
     file.write("               Seating plan     " + lecture_room['name'] + "      by last name\n\n")
-
+            
     for student in list_of_students_with_seats:
         file.write(student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
@@ -564,7 +567,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     # well we need to sort the student list if the function name says so!
     list_of_students_with_seats.sort(key=lambda s: s['FAMILY_NAME_OF_STUDENT'])
 
-    file = open(TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE, 'w')
+    file = codecs.open(TEMP_FILENAME_STUDENTS_BY_LASTNAME_TEXFILE, 'w', 'utf-8')
 
     for student in list_of_students_with_seats:
         file.write("\\vkExamStudent{" + student['FAMILY_NAME_OF_STUDENT'] + '}{' + \
@@ -576,13 +579,24 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     file.flush()
     os.fsync(file.fileno())
 
+def MangleNameIfLongerThanThresholdForUnicode(name, threshold):
+	if len(name) > threshold:
+		return name[:threshold-3]+u"\u2026"
+	else:
+		return name
+
+def MangleNameIfLongerThanThresholdForHTML(name, threshold):
+	if len(name) > threshold:
+		return name[:threshold-2]+"&hellip;"
+	else:
+		return name
+
 
 def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
 
     # FIXXME: Sizing needs some improvement.
-    # FIXXME: Turning text upside down might not work for all browsers.
 
-    htmlfile = open(FILENAME_MAIN_TABLE_WITHOUT_EXTENSION + '.html', 'w')
+    htmlfile = codecs.open(FILENAME_MAIN_TABLE_WITHOUT_EXTENSION + '.html', 'w','utf-8')
 
     htmlfile.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"\n')
     htmlfile.write('        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n')
@@ -593,9 +607,7 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('		content="text/html;charset=iso-8859-1" />\n')
     htmlfile.write('		<STYLE type="text/css">\n')
     htmlfile.write('		table {table-layout: fixed;}\n')
-    htmlfile.write('    td {border: 1px solid #000000; text-align: center; width: 100px; font-size: 10pt; height: 60px; %s}\n' \
-       % ("webkit-transform: rotate(-180deg); -moz-transform: rotate(-180deg); filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);" \
-         if options.tableturn else ""))
+    htmlfile.write('    td {border: 1px solid #000000; text-align: center; width: 100px; font-size: 10pt; height: 60px; %s}\n')
     htmlfile.write('    .empty {background-color: #EEEEEE}\n')
     htmlfile.write('    .omit {font-style: bold; font-size: 20pt; background-color: #AAAAAA}\n')
     htmlfile.write('    .header {font-size: 20pt; font-style: bold}\n')
@@ -603,18 +615,36 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('    </STYLE>\n')
     htmlfile.write('</head>\n')
     htmlfile.write('<body>\n')
-    htmlfile.write('<table style="width: %dpx;">\n' % ((lecture_room['columns'] + 1) * 100))
+    hsize = ((lecture_room['columns'] + 2) * 100)
+    if options.tableturn:
+		hsize = ((lecture_room['columns'] + 3) * 100)
+    htmlfile.write('<table style="width: %dpx;">\n' % hsize)
+    if options.tableturn:
+		htmlfile.write('<tfoot>\n')
     htmlfile.write('<tr><td class="number">&nbsp;</td><td class="header" colspan="%d" style="width: %dpx">Front</td></tr>\n' % \
        (lecture_room['columns'], (lecture_room['columns']) * 100))
+    if options.tableturn:
+		htmlfile.write('</tfoot>\n')
+    # --
+    htmlfile.write('<tbody>\n')
     htmlfile.write('<tr>\n')
     htmlfile.write('<td class="number">&nbsp;</td>')
-    for i in range(1, lecture_room['columns'] + 1):
+    sequence = range(1, lecture_room['columns'] + 1)
+    if options.tableturn:
+		sequence.reverse()		
+    for i in sequence:
         htmlfile.write('<td class="number">%d</td>' % i)
     htmlfile.write('</tr>\n')
-    for i in range(1, lecture_room['rows'] + 1):
+	# --
+    row_sequ = (range(1, lecture_room['rows'] + 1))
+    col_sequ = (range(1, lecture_room['columns'] + 1))
+    if options.tableturn:
+		row_sequ.reverse()
+		col_sequ.reverse()
+    for i in row_sequ:
         htmlfile.write('<tr>\n')
         htmlfile.write('<td class="number">%d</td>' % i)
-        for j in range(1, lecture_room['columns'] + 1):
+        for j in col_sequ:
             seat_data = '&nbsp;'
             seat_class = 'empty'
             if [i, j] in lecture_room['seatstoomit']:
@@ -626,13 +656,19 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
             elif len(students_on_this_seat) == 1:
                 student = students_on_this_seat[0]
                 seat_class = 'occupied'
-                seat_data = student['FAMILY_NAME_OF_STUDENT'] + \
+                seat_data = MangleNameIfLongerThanThresholdForHTML(student['FAMILY_NAME_OF_STUDENT'],10) + \
                     '<br />' + student['FIRST_NAME_OF_STUDENT'] + \
                     '<br />' + student['REGISTRATION_NUMBER'][:STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN] + 'X'*STUDENT_REGNUM_MASK_LEN
             htmlfile.write('<td class="%s">%s</td>' % (seat_class, seat_data))
+        htmlfile.write('<td class="number">%d</td>' % i)
         htmlfile.write('\n</tr>\n')
+    htmlfile.write('<tr>\n')
+    htmlfile.write('<td class="number">&nbsp;</td>')
+    for i in sequence:
+        htmlfile.write('<td class="number">%d</td>' % i)
+    htmlfile.write('</tr>\n')
+    htmlfile.write('</tbody>\n')
     htmlfile.write('</table>')
-
     htmlfile.write('</body>\n')
     htmlfile.write('</html>\n')
     htmlfile.flush()
@@ -646,9 +682,10 @@ def compare_students_by_row_and_seat(a, b):
 
 def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
 
-    txtfile = open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.txt', 'w')
+    txtfile = codecs.open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
+    
     if options.pdf:
-        latexfile = open(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE, 'w')
+        latexfile = codecs.open(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE, 'w', 'utf-8')
 
     ## ASCII/txt file header
     txtfile.write("               Seating plan     " + lecture_room['name'] + "      by seat\n\n")
@@ -703,9 +740,9 @@ openright%
 ]{scrartcl}
 
 %% encoding:
-\\usepackage[ansinew]{inputenc}
+%\\usepackage[ansinew]{inputenc}
 \\usepackage{ucs}
-%\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
+\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
 
 %% use up as much space as possible:
 \\usepackage{savetrees}
@@ -783,9 +820,9 @@ openright%
 ]{scrartcl}
 
 %% encoding:
-\\usepackage[ansinew]{inputenc}
+%%\\usepackage[ansinew]{inputenc}
 \\usepackage{ucs}
-%\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
+\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
 
 %% use up as much space as possible:
 \\usepackage{savetrees}
@@ -817,11 +854,11 @@ openright%
 \\clearscrheadings
 \\clearscrplain
 \\chead{Exam Checklist of Lecture Room ''' + lecture_room['name'] + '''}
-\\ifoot{\\scriptsize{}page~\\pagemark}
+\\ifoot[c]{\\scriptsize{}page~\\pagemark}
 \\ofoot{\\tiny{}Generated using GenerateSeatingPlan.py by Karl Voit}
 
 \\begin{document}
-
+\setlength{\parindent}{0cm} %%remove the intendation of the first line of paragraph. 
 \\newcommand{\\vkExamStudent}[6]{%%
 \\makebox[\\linewidth][l]{$\\bigcirc$~#2~{\\bf{}#1};~#3,~R#4~S#6}\\\\[3mm]%%
 }%%
