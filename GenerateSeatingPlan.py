@@ -360,12 +360,12 @@ def PrintOutSeats(lecture_room, list_of_seats):
         logging.warning("list_of_seats is empty, so no seat is occupied. looks like internal error.")
     ## logging.debug("number of seats in list_of_seats: %s" % str(len(list_of_seats)) )
 
-    print "\nLegend:   #  ... potential seat      -  ... empty seat"
-    print   "          S  ... student sitting     X  ... seat not available"
-    print   "      row 1  ... first row near blackboard"
+    print("\nLegend:   #  ... potential seat      -  ... empty seat")
+    print("          S  ... student sitting     X  ... seat not available")
+    print("      row 1  ... first row near blackboard")
 
-    print "\n------    Seating Scheme for Lecture Room \"" + lecture_room['name'] + "\"   ------\n"
-    print   "              --Front--"
+    print("\n------    Seating Scheme for Lecture Room \"" + lecture_room['name'] + "\"   ------\n")
+    print("              --Front--")
 
     for currentrow in range(1, lecture_room['rows'] + 1):
 
@@ -379,7 +379,7 @@ def PrintOutSeats(lecture_room, list_of_seats):
             else:
                 linestring += "- "
 
-        print linestring
+        print(linestring)
         linestring = ''
 
 
@@ -390,8 +390,8 @@ def PrintOutSeatsWithStudents(lecture_room, list_of_students):
     if len(list_of_students) < 1:
         logging.warning("list_of_seats is empty, so no seat is occupied. looks like internal error.")
 
-    print "\n------    Seating Plan with students for Lecture Room \"" + lecture_room['name'] + "\"   ------\n"
-    print   "              --Front--"
+    print("\n------    Seating Plan with students for Lecture Room \"" + lecture_room['name'] + "\"   ------\n")
+    print("              --Front--")
 
     for currentrow in range(1, lecture_room['rows'] + 1):
 
@@ -415,9 +415,9 @@ def PrintOutSeatsWithStudents(lecture_room, list_of_students):
             if not seat_is_defined:
                 linestring += "- "
 
-        print linestring
+        print(linestring)
         linestring = ''
-    print  # one final line to seperate
+    print()  # one final line to seperate
 
 
 def FillRowWithStudentsOrLeaveEmpty(lecture_room, currentrow, list_of_occupied_seats):
@@ -578,7 +578,7 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
 
 def MangleNameIfLongerThanThresholdForUnicode(name, threshold):
 	if len(name) > threshold:
-		return name[:threshold-3]+u"\u2026"
+		return name[:threshold-3]+"\u2026"
 	else:
 		return name
 
@@ -626,15 +626,15 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('<tbody>\n')
     htmlfile.write('<tr>\n')
     htmlfile.write('<td class="number">&nbsp;</td>')
-    sequence = range(1, lecture_room['columns'] + 1)
+    sequence = list(range(1, lecture_room['columns'] + 1))
     if options.tableturn:
 		sequence.reverse()
     for i in sequence:
         htmlfile.write('<td class="number">%d</td>' % i)
     htmlfile.write('</tr>\n')
 	# --
-    row_sequ = (range(1, lecture_room['rows'] + 1))
-    col_sequ = (range(1, lecture_room['columns'] + 1))
+    row_sequ = (list(range(1, lecture_room['rows'] + 1)))
+    col_sequ = (list(range(1, lecture_room['columns'] + 1)))
     if options.tableturn:
 		row_sequ.reverse()
 		col_sequ.reverse()
@@ -903,7 +903,7 @@ def DeleteTempLaTeXFiles():
     ##   that these files will be deleted!
 
     if options.verbose:
-        print "omitting deletion of temporary files (because of verbose mode)"
+        print("omitting deletion of temporary files (because of verbose mode)")
     else:
         logging.info("deleting temporary LaTeX files ...")
         os.remove(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.tex')
@@ -921,9 +921,9 @@ def DeleteTempLaTeXFiles():
 def main():
     """Main function [make pylint happy :)]"""
 
-    print "   GenerateSeatingPlan.py - generating random seating plans for exams\n"
-    print "          (c) 2010 by Karl Voit <Karl.Voit@IST.TUGraz.at>"
-    print "              GPL v2 or any later version\n"
+    print("   GenerateSeatingPlan.py - generating random seating plans for exams\n")
+    print("          (c) 2010 by Karl Voit <Karl.Voit@IST.TUGraz.at>")
+    print("              GPL v2 or any later version\n")
 
     handle_logging()
 
@@ -997,17 +997,17 @@ def main():
     list_of_students = ReadInStudentsFromCsv(options.students_csv_file)
 
     #logging.info("Number of students:  %s" % str(len(list_of_students)))
-    print "Number of students:  %s" % str(len(list_of_students))
+    print("Number of students:  %s" % str(len(list_of_students)))
 
     ## generate list of all seats and remove seats to omit from lecture room:
     list_of_available_seats = [x for x in GenerateListOfAllSeats(LECTURE_ROOM) if x not in LECTURE_ROOM['seatstoomit']]
 
     # logging.info("Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats)) )
-    print "Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats))
+    print("Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats)))
 
     # logging.info("Fill option: fill the seats starting from front
     if options.fillfromfront:
-        print "Fill option:         Start filling seats from front."
+        print("Fill option:         Start filling seats from front.")
 
     ## just the potential seating plan (without students)
     PrintOutSeats(LECTURE_ROOM, list_of_available_seats)
@@ -1026,7 +1026,7 @@ def main():
     ## the seating plan (showing the students)
     PrintOutSeatsWithStudents(LECTURE_ROOM, list_of_students_with_seats)
 
-    print unused_seats_info
+    print(unused_seats_info)
 
     GenerateTextfileSortedByStudentLastname(LECTURE_ROOM, list_of_students_with_seats)
 
