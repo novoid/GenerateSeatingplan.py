@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2018-02-25 10:42:02 vk>
+## Time-stamp: <2018-02-25 10:49:26 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -922,7 +922,7 @@ def main():
     """Main function [make pylint happy :)]"""
 
     print("   GenerateSeatingPlan.py - generating random seating plans for exams\n")
-    print("          (c) 2010 by Karl Voit <Karl.Voit@IST.TUGraz.at>")
+    print("          (c) 2010 and later by Karl Voit <tools@Karl-Voit.at>")
     print("              GPL v2 or any later version\n")
 
     handle_logging()
