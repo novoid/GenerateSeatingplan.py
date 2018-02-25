@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 ## auto last change for vim and Emacs: (whatever comes last)
 ## Latest change: Mon Mar 08 11:49:34 CET 2010
-## Time-stamp: <2013-11-27 07:52:04 vk>
+## Time-stamp: <2018-02-25 10:42:02 vk>
 """
 GenerateSeatingPlan.py
 ~~~~~~~~~~~~~~~~~~~~~~
 
-:copyright: (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>
+:copyright: (c) 2010 and later by Karl Voit <tools@Karl-Voit.at>
 :license: GPL v2 or any later version
-:bugreports: <Karl.Voit@IST.TUGraz.at>
+:bugreports: via https://github.com/novoid/GenerateSeatingplan.py
 
 See USAGE below for details!
 
@@ -31,9 +31,6 @@ import codecs
 
 ## for CSV
 import unicodecsv as csv
-
-## debugging:   for setting a breakpoint:  pdb.set_trace()
-#import pdb
 
 ##        ===========================
 ##         How to add a lecture room
@@ -109,12 +106,12 @@ HS_i13 = {'rows': 14,
         'columns': 22,
         'name': "Hoersaal i13",
         'seatstoomit': [[14, 10], [14, 11], [14, 12], [14, 13]]}
-        
+
 HS_i14 = {'rows': 9,
         'columns': 4,
         'name': "Hoersaal i14",
         'seatstoomit': []}
-        
+
 
 ## RB 20140119, not checked
 HS_A = {
@@ -133,12 +130,12 @@ HS_D = {'rows': 6,
         'columns': 10,
         'name': "Hoersaal D",
         'seatstoomit': [[6,9], [6,10] ]}
-        
+
 HS_G = {'rows': 12,
         'columns': 20,
         'name': "Hoersaal G",
         'seatstoomit': []}
-        
+
 
 ## RB 20130527. Checked 20140120.
 ## First row does not have tables
@@ -265,9 +262,9 @@ lecture room.\n\
 Several things can be manipulated according to your needs. \n\
 \n\
   :URL:        https://github.com/novoid/GenerateSeatingplan.py\n\
-  :copyright:  (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>\n\
+  :copyright:  (c) 2010 and later by Karl Voit <tool@Karl-Voit.at>\n\
   :license:    GPL v2 or any later version\n\
-  :bugreports: <Karl.Voit@IST.TUGraz.at>\n\
+  :bugreports: https://github.com/novoid/GenerateSeatingplan.py/issues\n\
 \n\
 Run %prog --help for usage hints\n"
 
@@ -345,7 +342,7 @@ def handle_logging():
 def ReadInStudentsFromCsv(csvfilename):
     csvFile = open(csvfilename,"rb")
     ## get rid of utf-8 BOM since unicodecsv can't deal with that an quotes first key
-    csvFile.read(3) 
+    csvFile.read(3)
     csvReader = csv.DictReader(csvFile, delimiter=';', quotechar='"', encoding="utf-8")
     students_list = []
 
@@ -533,11 +530,11 @@ def SelectRandomListElementAndRemoveItFromList(list):
         return list_element
     else:
         return None
-	
+
 
 def GenerateRandomizedSeatingPlan(list_of_students, list_of_available_seats):
     shuffle(list_of_students)
-	
+
 	## randomize students over all seats:
     for student in list_of_students:
 		if options.fillfromfront:
@@ -554,7 +551,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     file = codecs.open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
 
     file.write("               Seating plan     " + lecture_room['name'] + "      by last name\n\n")
-            
+
     for student in list_of_students_with_seats:
         file.write(student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
@@ -631,7 +628,7 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('<td class="number">&nbsp;</td>')
     sequence = range(1, lecture_room['columns'] + 1)
     if options.tableturn:
-		sequence.reverse()		
+		sequence.reverse()
     for i in sequence:
         htmlfile.write('<td class="number">%d</td>' % i)
     htmlfile.write('</tr>\n')
@@ -683,7 +680,7 @@ def compare_students_by_row_and_seat(a, b):
 def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
 
     txtfile = codecs.open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
-    
+
     if options.pdf:
         latexfile = codecs.open(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE, 'w', 'utf-8')
 
@@ -858,7 +855,7 @@ openright%
 \\ofoot{\\tiny{}Generated using GenerateSeatingPlan.py by Karl Voit}
 
 \\begin{document}
-\setlength{\parindent}{0cm} %%remove the intendation of the first line of paragraph. 
+\setlength{\parindent}{0cm} %%remove the intendation of the first line of paragraph.
 \\newcommand{\\vkExamStudent}[6]{%%
 \\makebox[\\linewidth][l]{$\\bigcirc$~#2~{\\bf{}#1};~#3,~R#4~S#6}\\\\[3mm]%%
 }%%
@@ -1007,7 +1004,7 @@ def main():
 
     # logging.info("Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats)) )
     print "Number of seats:     %s   (using current seating scheme)" % str(len(list_of_available_seats))
-    
+
     # logging.info("Fill option: fill the seats starting from front
     if options.fillfromfront:
         print "Fill option:         Start filling seats from front."

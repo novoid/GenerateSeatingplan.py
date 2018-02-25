@@ -1,4 +1,4 @@
-# Time-stamp: <2012-04-06 15:35:15 vk>
+# Time-stamp: <2018-02-25 10:43:47 vk>
 # -*- coding: utf-8 -*-
 
 [[https://online.tugraz.at/][TUGRAZonline]] is an instance of [[http://campusonline.tugraz.at/][CAMPUSonline]] which is used for campus
@@ -9,53 +9,61 @@ interested in deriving randomized seating plans. This is for you :-)
 
 * Usage
 
-(status: 2012-04-06)
+(status of this output: 2018-02-25)
 
-: Usage: 
-:          GenerateSeatingPlan.py --lr KNOWN_ROOM STUDENTS.csv
-: 
-: GenerateSeatingPlan.py takes a TUGrazOnline CSV file including the students
-: attending an exam and generates a randomized seating plan for a specific
-: lecture room.
-: 
-: Several things can be manipulated according to your needs. 
-: 
-:   :URL:        https://github.com/novoid/GenerateSeatingplan.py
-:   :copyright:  (c) 2010-2012 by Karl Voit <Karl.Voit@IST.TUGraz.at>
-:   :license:    GPL v2 or any later version
-:   :bugreports: <Karl.Voit@IST.TUGraz.at>
-: 
-: Run GenerateSeatingPlan.py --help for usage hints
-: 
-: 
-: Options:
-:   -h, --help            show this help message and exit
-:   -c FILE, --csvfile=FILE
-:                         CSV file of students in TUGrazOnline format. You can
-:                         add columns but original header line is required.
-:   --lr=NAME, --lecture-room=NAME
-:                         the short name of a known lecture room. so far,
-:                         following lecture rooms are supported: HS_i7 HS_i11
-:                         HS_i12 HS_i13 HS_B HS_P1 test1
-:   --sa=INT, --students_adjoined=INT
-:                         that many students are sitting right beneath each
-:                         other before the next empty seat(s)
-:   --ra=INT, --filled_rows_adjoined=INT
-:                         that many rows are being filled with students before
-:                         the next empty row(s)
-:   --fs=INT, --free_seats_to_seperate=INT
-:                         that many seats are empty before the next student sits
-:   --fr=INT, --free_rows_to_seperate=INT
-:                         that many rows are empty before the next row is filled
-:   --fff                 fill from front, begins to seat students from front row
-:   -s FLOAT, --seed=FLOAT
-:                         sets random seed for shuffling students (default 0.0)
-:   -p, --pdf             generates a PDF file with alphabetical student names
-:                         and seating (requires pdflatex with savetrees,
-:                         longtable, hyperref, and KOMA)
-:   -t, --table           generates a seating plan in (HTML) table format.
-:   -u, --tableturn       Writes the table upside down (view for lecturer).
-:                         Might not work with all browsers.
-:   -v, --verbose         enable verbose mode
-:   -q, --quiet           do not output anything but just errors on console
-:   --checklist           creates a list of students orderd by seat
+#+BEGIN_SRC sh :results output :wrap src
+./GenerateSeatingPlan.py --help
+#+END_SRC
+
+#+BEGIN_src
+Usage:
+         GenerateSeatingPlan.py --lr KNOWN_ROOM STUDENTS.csv
+
+GenerateSeatingPlan.py takes a CAMPUSonline CSV file including the students
+attending an exam and generates a randomized seating plan for a specific
+lecture room.
+
+Several things can be manipulated according to your needs.
+
+  :URL:        https://github.com/novoid/GenerateSeatingplan.py
+  :copyright:  (c) 2010 and later by Karl Voit <tool@Karl-Voit.at>
+  :license:    GPL v2 or any later version
+  :bugreports: https://github.com/novoid/GenerateSeatingplan.py/issues
+
+Run GenerateSeatingPlan.py --help for usage hints
+
+
+Options:
+  -h, --help            show this help message and exit
+  -c FILE, --csvfile=FILE
+                        CSV file of students in CAMPUSonline format. You can
+                        add columns but original header line is required.
+  --lr=NAME, --lecture-room=NAME
+                        the short name of a known lecture room. so far,
+                        following lecture rooms are supported: HS_i1 HS_i7
+                        HS_i11 HS_i12 HS_i13 HS_i14 HS_A HS_B HS_D HS_G HS_H
+                        HS_P1 HS_VI HS_I test1
+  --sa=INT, --students_adjoined=INT
+                        that many students are sitting right beneath each
+                        other before the next empty seat(s)
+  --ra=INT, --filled_rows_adjoined=INT
+                        that many rows are being filled with students before
+                        the next empty row(s)
+  --fs=INT, --free_seats_to_separate=INT
+                        that many seats are empty before the next student sits
+  --fr=INT, --free_rows_to_separate=INT
+                        that many rows are empty before the next row is filled
+  -s FLOAT, --seed=FLOAT
+                        sets random seed for shuffling students (default 0.0)
+  -p, --pdf             generates a PDF file with alphabetical student names
+                        and seating (requires pdflatex with savetrees,
+                        longtable, hyperref, and KOMA)
+  -t, --table           generates a seating plan in (HTML) table format.
+  -u, --tableturn       Writes the table upside down (view for lecturer).
+                        Might not work with all browsers.
+  -v, --verbose         enable verbose mode
+  -q, --quiet           do not output anything but just errors on console
+  --checklist           creates a list of students orderd by seat
+  --fff                 fills students to free seats beginning with the front
+                        row
+#+END_src
