@@ -1,5 +1,9 @@
 Changelog:
 ==========
+* 2018-02-25 by Christian Schindler
+  - Fixed HTML Header (changed to utf-8)
+  - Fixed Latex compilation by adding "\usepackage[T1]{fontenc}"
+  - Added shortlist_utf8.csv.txt - to play with dummy exam data
 * 2018-02-16 by Christian Schindler
   - Added CHANGELOG.md (this) file to get an idea what was changed. 
   - UTF-8 support: csv export from TUG-Online must be utf-8. Now umlauts and special characters are possible

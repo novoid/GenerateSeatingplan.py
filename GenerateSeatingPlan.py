@@ -17,7 +17,6 @@ FIXXME:
     * look for the string FIXXME to improve this script
     * Sanity checks all over (cmd line parameters, CSV file, ...)
     * probably: if -p is given, ask for proceeding after displaying ASCII seating plan
-    * re-write random assignment of seats so that seats are filled from the front (and only last seats may stay empty)
     * check seed parameter
 
 """
@@ -551,7 +550,7 @@ def GenerateTextfileSortedByStudentLastname(lecture_room, list_of_students_with_
     file = codecs.open(FILENAME_MAIN_BY_LASTNAME_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
 
     file.write("               Seating plan     " + lecture_room['name'] + "      by last name\n\n")
-
+            
     for student in list_of_students_with_seats:
         file.write(student['FAMILY_NAME_OF_STUDENT'].ljust(25, '.') + \
             student['FIRST_NAME_OF_STUDENT'].ljust(20, '.') + \
@@ -576,13 +575,13 @@ def GenerateLatexfileSortedByStudentLastname(lecture_room, list_of_students_with
     file.flush()
     os.fsync(file.fileno())
 
-def MangleNameIfLongerThanThresholdForUnicode(name, threshold):
+def TruncateNameIfLongerThanThresholdForUnicode(name, threshold):
 	if len(name) > threshold:
-		return name[:threshold-3]+"\u2026"
+		return name[:threshold-3]+u"\u2026"
 	else:
 		return name
 
-def MangleNameIfLongerThanThresholdForHTML(name, threshold):
+def TruncateNameIfLongerThanThresholdForHTML(name, threshold):
 	if len(name) > threshold:
 		return name[:threshold-2]+"&hellip;"
 	else:
@@ -601,7 +600,7 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('<head>\n')
     htmlfile.write(' 	<title>Seating Plan</title>\n')
     htmlfile.write('	<meta http-equiv="content-type"\n')
-    htmlfile.write('		content="text/html;charset=iso-8859-1" />\n')
+    htmlfile.write('		content="text/html;charset=utf-8" />\n')
     htmlfile.write('		<STYLE type="text/css">\n')
     htmlfile.write('		table {table-layout: fixed;}\n')
     htmlfile.write('    td {border: 1px solid #000000; text-align: center; width: 100px; font-size: 10pt; height: 60px; %s}\n')
@@ -626,15 +625,15 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
     htmlfile.write('<tbody>\n')
     htmlfile.write('<tr>\n')
     htmlfile.write('<td class="number">&nbsp;</td>')
-    sequence = list(range(1, lecture_room['columns'] + 1))
+    sequence = range(1, lecture_room['columns'] + 1)
     if options.tableturn:
-		sequence.reverse()
+		sequence.reverse()		
     for i in sequence:
         htmlfile.write('<td class="number">%d</td>' % i)
     htmlfile.write('</tr>\n')
 	# --
-    row_sequ = (list(range(1, lecture_room['rows'] + 1)))
-    col_sequ = (list(range(1, lecture_room['columns'] + 1)))
+    row_sequ = (range(1, lecture_room['rows'] + 1))
+    col_sequ = (range(1, lecture_room['columns'] + 1))
     if options.tableturn:
 		row_sequ.reverse()
 		col_sequ.reverse()
@@ -653,7 +652,7 @@ def GenerateHtmlFileWithTableFormat(lecture_room, list_of_students_with_seats):
             elif len(students_on_this_seat) == 1:
                 student = students_on_this_seat[0]
                 seat_class = 'occupied'
-                seat_data = MangleNameIfLongerThanThresholdForHTML(student['FAMILY_NAME_OF_STUDENT'],10) + \
+                seat_data = TruncateNameIfLongerThanThresholdForHTML(student['FAMILY_NAME_OF_STUDENT'],10) + \
                     '<br />' + student['FIRST_NAME_OF_STUDENT'] + \
                     '<br />' + student['REGISTRATION_NUMBER'][:STUDENT_REGNUM_NUM_OF_DIGITS_SHOWN] + 'X'*STUDENT_REGNUM_MASK_LEN
             htmlfile.write('<td class="%s">%s</td>' % (seat_class, seat_data))
@@ -680,7 +679,6 @@ def compare_students_by_row_and_seat(a, b):
 def GenerateTextfileSortedBySeat(lecture_room, list_of_students_with_seats):
 
     txtfile = codecs.open(FILENAME_MAIN_BY_SEATS_WITHOUT_EXTENSION + '.txt', 'w','utf-8')
-
     if options.pdf:
         latexfile = codecs.open(TEMP_FILENAME_STUDENTS_BY_SEATS_TEXFILE, 'w', 'utf-8')
 
@@ -737,9 +735,9 @@ openright%
 ]{scrartcl}
 
 %% encoding:
-%\\usepackage[ansinew]{inputenc}
+\\usepackage[T1]{fontenc}
 \\usepackage{ucs}
-\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
+\\usepackage[utf8x]{inputenc}
 
 %% use up as much space as possible:
 \\usepackage{savetrees}
@@ -817,9 +815,10 @@ openright%
 ]{scrartcl}
 
 %% encoding:
-%%\\usepackage[ansinew]{inputenc}
+\\usepackage[T1]{fontenc}
 \\usepackage{ucs}
-\\usepackage[utf8x]{inputenc}  %% Sorry, problems with Umlauts in CSV forced me to stay at ansinew
+\\usepackage[utf8x]{inputenc}
+
 
 %% use up as much space as possible:
 \\usepackage{savetrees}
@@ -855,7 +854,7 @@ openright%
 \\ofoot{\\tiny{}Generated using GenerateSeatingPlan.py by Karl Voit}
 
 \\begin{document}
-\setlength{\parindent}{0cm} %%remove the intendation of the first line of paragraph.
+\setlength{\parindent}{0cm} %%remove the intendation of the first line of paragraph. 
 \\newcommand{\\vkExamStudent}[6]{%%
 \\makebox[\\linewidth][l]{$\\bigcirc$~#2~{\\bf{}#1};~#3,~R#4~S#6}\\\\[3mm]%%
 }%%
